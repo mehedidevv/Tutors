@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "822941014138",
+    "project_id": "tutors-3a680",
+    "storage_bucket": "tutors-3a680.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822941014138:android:f88a7aae02e3b8721543c3",
+        "android_client_info": {
+          "package_name": "com.example.care_tutors"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBL4NgYDeLP4Z626mcHKqf9gZnSFe2pT20"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
