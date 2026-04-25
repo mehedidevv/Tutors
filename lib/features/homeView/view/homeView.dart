@@ -27,11 +27,11 @@ class HomeView extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: _buildFAB(context),
+      floatingActionButton: _buildFAB(context, controller),
     );
   }
 
-///Header Design
+  ///Header Part
   Widget _buildHeader(BuildContext context, HomeController controller) {
     return Container(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 16.h),
@@ -44,6 +44,7 @@ class HomeView extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Avatar
           Container(
             width: 46.w,
             height: 46.w,
@@ -69,7 +70,6 @@ class HomeView extends StatelessWidget {
 
           SizedBox(width: 12.w),
 
-          // Greeting
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +93,7 @@ class HomeView extends StatelessWidget {
             ),
           ),
 
-          // Logout Button
+          /// Logout Button
           GestureDetector(
             onTap: () => _showLogoutDialog(context, controller),
             child: Container(
@@ -169,7 +169,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  ///My Notes
+  /// Title Section
   Widget _buildSectionTitle(HomeController controller) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
@@ -200,22 +200,35 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  ///Notes List
+  // Note List
   Widget _buildNotesList(HomeController controller) {
     return Expanded(
       child: Obx(() {
-        if (controller.filteredNotes.isEmpty) {
-          return _buildEmptyState();
+        // Loading State
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF1565C0),
+            ),
+          );
         }
-        return ListView.builder(
-          padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 100.h),
-          physics: const BouncingScrollPhysics(),
-          itemCount: controller.filteredNotes.length,
-          itemBuilder: (context, index) => NoteWidget(
-            note: controller.filteredNotes[index],
-            onTap: () {
-              ///
-            },
+
+        if (controller.filteredNotes.isEmpty) {
+          return _buildEmptyState(controller);
+        }
+        return RefreshIndicator(
+          color: const Color(0xFF1565C0),
+          onRefresh: controller.fetchNotes,
+          child: ListView.builder(
+            padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 100.h),
+            physics: const BouncingScrollPhysics(),
+            itemCount: controller.filteredNotes.length,
+            itemBuilder: (context, index) => NoteWidget(
+              note: controller.filteredNotes[index],
+              onTap: () {
+                // TODO: Note detail
+              },
+            ),
           ),
         );
       }),
@@ -223,42 +236,57 @@ class HomeView extends StatelessWidget {
   }
 
   /// Empty State
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(HomeController controller) {
+    final isSearching = controller.searchQuery.value.isNotEmpty;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.search_off_rounded,
-            size: 48.sp,
+            isSearching
+                ? Icons.search_off_rounded
+                : Icons.note_alt_outlined,
+            size: 64.sp,
             color: const Color(0xFFCCCCCC),
           ),
           SizedBox(height: 12.h),
-          CustomText(
-           text:  'No notes found',
-              fontSize: 14.sp,
+          Text(
+            isSearching ? 'No notes found' : 'No notes yet',
+            style: GoogleFonts.poppins(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w500,
               color: const Color(0xFFAAAAAA),
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            isSearching
+                ? 'Try a different keyword'
+                : 'Tap + to add your first note',
+            style: GoogleFonts.poppins(
+              fontSize: 12.sp,
+              color: const Color(0xFFCCCCCC),
+            ),
           ),
         ],
       ),
     );
   }
 
-  /// FAB  Icon Add Note
-  Widget _buildFAB(BuildContext context) {
+  /// FAB Icon
+  Widget _buildFAB(BuildContext context, HomeController controller) {
     return FloatingActionButton(
       onPressed: () {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
-          builder: (context) {
-            return FractionallySizedBox(
-              heightFactor: 0.7,
-              child:  AddNoteBottomSheetWidget(),
-            );
-          },
-        );
+          builder: (context) => FractionallySizedBox(
+            heightFactor: 0.7,
+            child: AddNoteBottomSheetWidget(),
+          ),
+        ).whenComplete(() => controller.fetchNotes());
       },
       backgroundColor: const Color(0xFF1565C0),
       elevation: 4,
@@ -269,7 +297,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  ///Logout Dialog
+  /// Logout Dialog
   void _showLogoutDialog(BuildContext context, HomeController controller) {
     showDialog(
       context: context,
@@ -278,14 +306,14 @@ class HomeView extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.r),
         ),
         title: CustomText(
-         text:  'Log Out',
-            fontWeight: FontWeight.w600,
-            fontSize: 16.sp,
+          text: 'Log Out',
+          fontWeight: FontWeight.w600,
+          fontSize: 16.sp,
         ),
         content: CustomText(
-         text:  'Are you sure you want to log out?',
-            fontSize: 13.sp,
-            color: const Color(0xFF666666),
+          text: 'Are you sure you want to log out?',
+          fontSize: 13.sp,
+          color: const Color(0xFF666666),
         ),
         actions: [
           TextButton(

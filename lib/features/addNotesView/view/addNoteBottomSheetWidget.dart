@@ -16,6 +16,7 @@ class AddNoteBottomSheetWidget extends StatefulWidget {
 }
 
 class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
+
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -30,6 +31,7 @@ class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
     super.dispose();
   }
 
+  ///Add Note Method
   Future<void> _addNote() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -71,7 +73,7 @@ class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
         left: 16,
         right: 16,
         top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16, // keyboard handle
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -83,7 +85,7 @@ class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Drag handle + close ──
+            ///Close
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -113,13 +115,13 @@ class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
             Divider(color: const Color(0xFFE6E6E6), height: 12.h),
             heightBox5,
 
-            // ── Scrollable content ──
+            /// All Content
             Flexible(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
+
                     CustomText(
                       text: "Note Title",
                       fontSize: 14,
@@ -147,7 +149,6 @@ class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
 
                     heightBox20,
 
-                    // Description
                     CustomText(
                       text: "Note Description",
                       fontSize: 14,
@@ -175,7 +176,7 @@ class _AddNoteBottomSheetWidgetState extends State<AddNoteBottomSheetWidget> {
 
                     heightBox30,
 
-                    // Buttons
+                    /// Buttons
                     Row(
                       children: [
                         Expanded(

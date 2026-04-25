@@ -1,57 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import '../../../features/authView/controller/authController.dart';
 import 'package:flutter/material.dart';
+import '../../../features/authView/controller/authController.dart';
+import '../../addNotesView/repository/noteRepository.dart';
+import '../../addNotesView/model/noteModel.dart';
 
 class HomeController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
+  final NoteRepository _noteRepository = NoteRepository();
   final searchController = TextEditingController();
 
   final RxString searchQuery = ''.obs;
-  final RxList<Map<String, String>> filteredNotes = <Map<String, String>>[].obs;
-  final List<Map<String, String>> allNotes = [
-    {
-      'title': 'Mathematics - Chapter 5',
-      'description':
-      'Quadratic equations and their real-world applications. Practice problems included for exam preparation.',
-      'color': '0xFFE8F0FE',
-    },
-    {
-      'title': 'Physics - Optics',
-      'description':
-      'Reflection, refraction, and the laws of light. Diagrams for concave and convex lenses.',
-      'color': '0xFFE8F5E9',
-    },
-    {
-      'title': 'English Literature',
-      'description':
-      'Analysis of Shakespeare\'s Hamlet. Key themes: revenge, madness, moral corruption.',
-      'color': '0xFFFFF3E0',
-    },
-    {
-      'title': 'Chemistry - Periodic Table',
-      'description':
-      'Groups and periods explained. Electronegativity trends and ionization energy concepts.',
-      'color': '0xFFFCE4EC',
-    },
-    {
-      'title': 'History - World War II',
-      'description':
-      'Major events from 1939–1945. Causes, key battles, and aftermath of the war.',
-      'color': '0xFFEDE7F6',
-    },
-    {
-      'title': 'Biology - Cell Division',
-      'description':
-      'Mitosis and meiosis explained with diagrams. Differences and biological significance.',
-      'color': '0xFFE0F7FA',
-    },
-  ];
+  final RxList<NoteModel> allNotes = <NoteModel>[].obs;
+  final RxList<NoteModel> filteredNotes = <NoteModel>[].obs;
+  final RxBool isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    filteredNotes.assignAll(allNotes);
+    fetchNotes();
   }
 
   @override
@@ -60,7 +27,26 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
-///Get User Info
+  /// Fetch Note Form Fire Store
+  Future<void> fetchNotes() async {
+    isLoading.value = true;
+    try {
+      final notes = await _noteRepository.getNotes();
+      allNotes.assignAll(notes);
+      filteredNotes.assignAll(notes);
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to fetch notes: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Get User Info
   String get userName {
     final user = FirebaseAuth.instance.currentUser;
     return user?.displayName ?? user?.email?.split('@').first ?? 'User';
@@ -75,7 +61,7 @@ class HomeController extends GetxController {
     return name.isNotEmpty ? name[0].toUpperCase() : 'U';
   }
 
-///Serach Logic
+  /// Search Logic
   void onSearch(String query) {
     searchQuery.value = query;
     if (query.isEmpty) {
@@ -84,8 +70,8 @@ class HomeController extends GetxController {
     }
     filteredNotes.assignAll(
       allNotes.where((note) {
-        final title = note['title']!.toLowerCase();
-        final desc = note['description']!.toLowerCase();
+        final title = note.title.toLowerCase();
+        final desc = note.description.toLowerCase();
         return title.contains(query.toLowerCase()) ||
             desc.contains(query.toLowerCase());
       }).toList(),
@@ -97,6 +83,7 @@ class HomeController extends GetxController {
     onSearch('');
   }
 
+  /// Log Out
   void showLogoutDialog(BuildContext context) {
     _authController.signOut(context);
   }

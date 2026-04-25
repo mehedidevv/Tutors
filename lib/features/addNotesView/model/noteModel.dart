@@ -1,4 +1,3 @@
-// lib/features/notes/data/models/note_model.dart
 class NoteModel {
   final String id;
   final String title;
@@ -13,8 +12,16 @@ class NoteModel {
   });
 
   Map<String, dynamic> toMap() => {
+    'id': id,
     'title': title,
     'description': description,
     'createdAt': createdAt.toIso8601String(),
   };
+
+  factory NoteModel.fromMap(Map<String, dynamic> map) => NoteModel(
+    id: map['id'] ?? '',
+    title: map['title'] ?? '',
+    description: map['description'] ?? '',
+    createdAt: DateTime.parse(map['createdAt']),
+  );
 }
