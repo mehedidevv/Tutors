@@ -76,7 +76,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signOut() async {
     await _auth.signOut();
   }
-
   String _mapError(String code) {
     switch (code) {
       case 'email-already-in-use':
@@ -90,7 +89,9 @@ class AuthRepositoryImpl implements AuthRepository {
       case 'wrong-password':
         return 'Incorrect password. Please try again.';
       case 'invalid-credential':
-        return 'Invalid email or password.';
+        return 'Invalid email or password. Please check and try again.';
+      case 'INVALID_LOGIN_CREDENTIALS':
+        return 'Invalid email or password. Please check and try again.';
       case 'user-disabled':
         return 'This account has been disabled.';
       case 'too-many-requests':
@@ -98,7 +99,7 @@ class AuthRepositoryImpl implements AuthRepository {
       case 'network-request-failed':
         return 'No internet connection. Please check your network.';
       default:
-        return 'Something went wrong. Please try again.';
+        return 'Something went wrong (${code}). Please try again.';
     }
   }
 }

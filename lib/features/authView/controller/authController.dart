@@ -59,7 +59,8 @@ class AuthController extends GetxController {
     }
   }
 
-  // ─── Log In ────────────────────────────────────────────────────────────────
+  /// Log In
+
   Future<void> logIn(BuildContext context) async {
     FocusScope.of(context).unfocus();
     if (!(loginFormKey.currentState?.validate() ?? false)) return;
@@ -73,21 +74,26 @@ class AuthController extends GetxController {
 
     isLoading.value = false;
 
+    if (!context.mounted) return;
+
     if (result.isSuccess) {
       final token = await result.data!.getIdToken();
       if (token != null) {
         await StorageService.instance.saveToken(token);
       }
-
       _clearControllers();
-      if (context.mounted) {
-        context.go(AppRouter.home);
-      }
+      if (context.mounted) context.go(AppRouter.home);
     } else {
-      _showSnackBar(
-        title: 'Login Failed',
-        message: result.errorMessage!,
-        isError: true,
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.errorMessage ?? 'Login failed.'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
